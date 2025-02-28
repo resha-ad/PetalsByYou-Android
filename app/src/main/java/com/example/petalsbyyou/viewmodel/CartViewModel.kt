@@ -1,0 +1,37 @@
+package com.example.petalsbyyou.viewmodel
+
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import com.example.petalsbyyou.model.CartModel
+import com.example.petalsbyyou.repository.CartRepository
+
+class CartViewModel(private val repo: CartRepository) : ViewModel() {
+
+    private val _cartItems = MutableLiveData<List<CartModel>>()
+    val cartItems: MutableLiveData<List<CartModel>> get() = _cartItems
+
+    private val _loading = MutableLiveData<Boolean>()
+    val loading: MutableLiveData<Boolean> get() = _loading
+
+    fun addToCart(cartModel: CartModel, callback: (Boolean, String) -> Unit) {
+        repo.addToCart(cartModel, callback)
+    }
+
+    fun removeFromCart(cartId: String, callback: (Boolean, String) -> Unit) {
+        repo.removeFromCart(cartId, callback)
+    }
+
+    fun updateCartItem(cartId: String, quantity: Int, callback: (Boolean, String) -> Unit) {
+        repo.updateCartItem(cartId, quantity, callback)
+    }
+
+    fun getCartItems(userId: String) {
+        _loading.value = true
+        repo.getCartItems(userId) { cartItems, success, message ->
+            if (success) {
+                _cartItems.value = cartItems
+            }
+            _loading.value = false
+        }
+    }
+}

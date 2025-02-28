@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "955554721510",
+    "project_id": "android-petalsbyyou",
+    "storage_bucket": "android-petalsbyyou.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:955554721510:android:f7be1772f58af288a19527",
+        "android_client_info": {
+          "package_name": "com.example.petalsbyyou"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDali07I0HnCnzqgAPWEpKNtD-2_Sq5hLw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
