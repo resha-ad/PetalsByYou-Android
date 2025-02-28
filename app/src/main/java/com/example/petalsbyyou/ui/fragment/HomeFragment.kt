@@ -11,12 +11,21 @@ import com.example.petalsbyyou.adapter.ProductAdapter
 import com.example.petalsbyyou.databinding.FragmentHomeBinding
 import com.example.petalsbyyou.model.ProductModel
 import com.example.petalsbyyou.R
+import com.example.petalsbyyou.model.CartModel
+import com.example.petalsbyyou.repository.CartRepositoryImpl
+import com.example.petalsbyyou.repository.UserRepositoryImpl
+import com.example.petalsbyyou.repository.CartRepository
 
 class HomeFragment : Fragment(), ProductAdapter.ProductClickListener {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private lateinit var productAdapter: ProductAdapter
+    private val cartRepository = CartRepositoryImpl() // Instance of CartRepositoryImpl
+    private val userRepository = UserRepositoryImpl() // Instance of UserRepositoryImpl
+
+    // Current user ID (fetched dynamically)
+    private var userId: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -28,6 +37,9 @@ class HomeFragment : Fragment(), ProductAdapter.ProductClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Fetch the current user ID
+        userId = userRepository.getCurrentUser()?.uid
 
         setupRecyclerView()
         loadProducts()
@@ -138,12 +150,26 @@ class HomeFragment : Fragment(), ProductAdapter.ProductClickListener {
     }
 
     override fun onAddToCartClicked(product: ProductModel, position: Int) {
-        Toast.makeText(
-            requireContext(),
-            "${product.productName} added to cart",
-            Toast.LENGTH_SHORT
-        ).show()
-        // In a real app, you would add the product to the cart in a repository
+        // Ensure the user is logged in
+        if (userId == null) {
+            Toast.makeText(requireContext(), "Please log in to add items to the cart", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val cartModel = CartModel(
+            userId = userId!!, // Use the dynamically fetched userId
+            productId = product.productId,
+            quantity = 1,
+            price = product.price
+        )
+
+        cartRepository.addToCart(cartModel) { success, message ->
+            if (success) {
+                Toast.makeText(requireContext(), "${product.productName} added to cart", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(requireContext(), "Failed to add to cart: $message", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     override fun onWishlistClicked(product: ProductModel, position: Int) {
@@ -152,11 +178,9 @@ class HomeFragment : Fragment(), ProductAdapter.ProductClickListener {
             "${product.productName} added to wishlist",
             Toast.LENGTH_SHORT
         ).show()
-        // In a real app, you would add/remove the product from wishlist in a repository
     }
 
     override fun onProductClicked(product: ProductModel, position: Int) {
-        // In a real app, you would navigate to a product detail screen
         Toast.makeText(
             requireContext(),
             "Viewing ${product.productName}",

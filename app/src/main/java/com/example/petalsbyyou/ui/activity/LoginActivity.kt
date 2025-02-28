@@ -39,7 +39,7 @@ class LoginActivity : AppCompatActivity() {
                     loadingUtils.dismiss()
                     if (success) {
                         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
-                        startActivity(Intent(this, DashboardActivity::class.java))
+                        startActivity(Intent(this, NavigationActivity::class.java))
                         finish()
                     } else {
                         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
