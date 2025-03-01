@@ -1,5 +1,6 @@
 package com.example.petalsbyyou.ui.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,7 @@ import androidx.fragment.app.Fragment
 import com.example.petalsbyyou.databinding.FragmentProfileBinding
 import com.example.petalsbyyou.model.UserModel
 import com.example.petalsbyyou.repository.UserRepositoryImpl
+import com.example.petalsbyyou.ui.activity.LoginActivity
 import com.example.petalsbyyou.utils.LoadingUtils
 import com.example.petalsbyyou.viewmodel.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -109,7 +111,14 @@ class ProfileFragment : Fragment() {
             loadingUtils.dismiss()
             if (success) {
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-                // Navigate to login or another screen after deletion
+                // Sign out from Firebase Auth
+                FirebaseAuth.getInstance().signOut()
+
+                // Navigate to login screen
+                val intent = Intent(requireContext(), LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                requireActivity().finish()
             } else {
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
             }
@@ -117,11 +126,31 @@ class ProfileFragment : Fragment() {
     }
 
     private fun validateInputs(firstName: String, lastName: String, address: String, phone: String): Boolean {
+        // Check if any field is empty
         if (firstName.isEmpty() || lastName.isEmpty() || address.isEmpty() || phone.isEmpty()) {
             Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show()
             return false
         }
 
+        // Validate first name (letters only, more than 2 characters)
+        if (!firstName.matches("[a-zA-Z]+".toRegex()) || firstName.length <= 2) {
+            Toast.makeText(requireContext(), "First name must contain only letters and be at least 3 characters", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        // Validate last name (letters only)
+        if (!lastName.matches("[a-zA-Z]+".toRegex())) {
+            Toast.makeText(requireContext(), "Last name must contain only letters", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        // Validate address (contains letters and is more than 4 characters)
+        if (!address.contains("[a-zA-Z]".toRegex()) || address.length <= 4) {
+            Toast.makeText(requireContext(), "Address must contain letters and be at least 5 characters", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        // Validate phone number (10 digits only)
         if (phone.length != 10 || !phone.matches("\\d+".toRegex())) {
             Toast.makeText(requireContext(), "Phone number must be 10 digits", Toast.LENGTH_SHORT).show()
             return false

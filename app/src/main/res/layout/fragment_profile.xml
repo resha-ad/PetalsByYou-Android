@@ -1,78 +1,221 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:background="@color/pink_extra_light">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="wrap_content">
 
-        <!-- First Name -->
-        <EditText
-            android:id="@+id/profileFirstName"
+        <!-- Decorative Floral Top Pattern -->
+        <View
+            android:id="@+id/topDecoration"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="@color/pink_primary"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Card Layout for Profile Info -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="First Name"
-            android:inputType="textCapWords"
-            android:maxLines="1" />
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="50dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="24dp"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Last Name -->
-        <EditText
-            android:id="@+id/profileLastName"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <!-- Profile Header with Logo -->
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp">
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/profileLogo"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:layout_gravity="center"
+                        android:padding="2dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/logopetals"
+                        android:background="@color/pink_primary"
+                        app:shapeAppearanceOverlay="@style/CircularImageView"
+                        app:strokeColor="@color/pink_primary"
+                        app:strokeWidth="2dp" />
+                </FrameLayout>
+
+                <!-- Profile Title -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:gravity="center"
+                    android:text="Your Profile"
+                    android:textAppearance="?attr/textAppearanceHeadline1"
+                    android:textColor="@color/pink_primary" />
+
+                <!-- First Name with Floral Design -->
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:hint="First Name"
+                    app:boxStrokeColor="@color/pink_primary"
+                    app:hintTextColor="@color/pink_primary"
+                    app:startIconDrawable="@drawable/ic_profile"
+                    app:startIconTint="@color/pink_primary">
+
+                    <EditText
+                        android:id="@+id/profileFirstName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textCapWords"
+                        android:maxLines="1" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Last Name -->
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:hint="Last Name"
+                    app:boxStrokeColor="@color/pink_primary"
+                    app:hintTextColor="@color/pink_primary"
+                    app:startIconDrawable="@drawable/ic_profile"
+                    app:startIconTint="@color/pink_primary">
+
+                    <EditText
+                        android:id="@+id/profileLastName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textCapWords"
+                        android:maxLines="1" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Email -->
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:hint="Email"
+                    app:boxStrokeColor="@color/pink_primary"
+                    app:hintTextColor="@color/pink_primary"
+                    app:startIconDrawable="@drawable/ic_email"
+                    app:startIconTint="@color/pink_primary">
+
+                    <EditText
+                        android:id="@+id/profileEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        android:focusable="false"
+                        android:inputType="textEmailAddress"
+                        android:maxLines="1" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Address -->
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:hint="Address"
+                    app:boxStrokeColor="@color/pink_primary"
+                    app:hintTextColor="@color/pink_primary"
+                    app:startIconDrawable="@drawable/ic_location"
+                    app:startIconTint="@color/pink_primary">
+
+                    <EditText
+                        android:id="@+id/profileAddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPostalAddress"
+                        android:maxLines="3" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Phone Number -->
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:hint="Phone Number"
+                    app:boxStrokeColor="@color/pink_primary"
+                    app:hintTextColor="@color/pink_primary"
+                    app:startIconDrawable="@drawable/ic_phone"
+                    app:startIconTint="@color/pink_primary">
+
+                    <EditText
+                        android:id="@+id/profilePhone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="phone"
+                        android:maxLines="1" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Floral Divider -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:layout_marginBottom="24dp"
+                    android:background="@drawable/ic_flowers" />
+
+                <!-- Save Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/profileSaveButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:backgroundTint="@color/pink_primary"
+                    android:padding="12dp"
+                    android:text="Save Changes"
+                    android:textColor="@color/white"
+                    app:cornerRadius="12dp"
+                    app:icon="@drawable/ic_save"
+                    app:iconGravity="textStart"
+                    app:iconTint="@color/white" />
+
+                <!-- Delete Profile Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/profileDeleteButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@android:color/holo_red_dark"
+                    android:padding="12dp"
+                    android:text="Delete Profile"
+                    android:textColor="@color/white"
+                    app:cornerRadius="12dp"
+                    app:icon="@drawable/ic_trash"
+                    app:iconGravity="textStart"
+                    app:iconTint="@color/white" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+
+        <ImageView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Last Name"
-            android:inputType="textCapWords"
-            android:maxLines="1" />
+            android:layout_height="100dp"
+            android:layout_marginTop="16dp"
+            android:alpha="0.6"
+            android:scaleType="fitXY"
+            android:src="@drawable/ic_rose"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
-        <!-- Email -->
-        <EditText
-            android:id="@+id/profileEmail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Email"
-            android:inputType="textEmailAddress"
-            android:maxLines="1"
-            android:focusable="false"
-            android:clickable="false" />
-
-        <!-- Address -->
-        <EditText
-            android:id="@+id/profileAddress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Address"
-            android:inputType="textPostalAddress"
-            android:maxLines="3" />
-
-        <!-- Phone Number -->
-        <EditText
-            android:id="@+id/profilePhone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Phone Number"
-            android:inputType="phone"
-            android:maxLines="1" />
-
-        <!-- Save Button -->
-        <Button
-            android:id="@+id/profileSaveButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Save Changes"
-            android:layout_marginTop="16dp" />
-
-        <!-- Delete Profile Button -->
-        <Button
-            android:id="@+id/profileDeleteButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Delete Profile"
-            android:layout_marginTop="8dp"
-            android:backgroundTint="@android:color/holo_red_dark" />
-
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

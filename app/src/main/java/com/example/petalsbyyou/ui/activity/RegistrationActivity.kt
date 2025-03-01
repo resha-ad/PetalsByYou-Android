@@ -110,8 +110,8 @@ class RegistrationActivity : AppCompatActivity() {
         }
 
         // Validate first name - only letters allowed
-        if (!firstName.matches("[a-zA-Z]+".toRegex())) {
-            Toast.makeText(this, "First name must contain only letters", Toast.LENGTH_SHORT).show()
+        if (!firstName.matches("[a-zA-Z]+".toRegex()) || firstName.length <3) {
+            Toast.makeText(this, "Enter valid and complete first name", Toast.LENGTH_SHORT).show()
             return false
         }
 
@@ -130,7 +130,7 @@ class RegistrationActivity : AppCompatActivity() {
         // Validate password - at least 8 characters with at least one letter and one number
         if (password.length < 8 || !password.matches(".*[A-Za-z].*".toRegex()) ||
             !password.matches(".*[0-9].*".toRegex())) {
-            Toast.makeText(this, "Password must be at least 8 characters and contain both letters and numbers",
+            Toast.makeText(this, "Password must be at least 8 characters with letters and numbers",
                 Toast.LENGTH_LONG).show()
             return false
         }
@@ -143,7 +143,7 @@ class RegistrationActivity : AppCompatActivity() {
 
         // Validate address - must be at least 5 characters and contain at least one letter
         if (address.length <= 5 || !address.matches(".*[a-zA-Z].*".toRegex())) {
-            Toast.makeText(this, "Please enter a valid delivery address (more than 5 characters and must include letters)",
+            Toast.makeText(this, "Please enter a valid lengthier delivery address(no special character)",
                 Toast.LENGTH_LONG).show()
             return false
         }
