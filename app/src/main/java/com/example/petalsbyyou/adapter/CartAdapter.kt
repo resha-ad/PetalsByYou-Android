@@ -7,8 +7,8 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.example.petalsbyyou.R
 import com.example.petalsbyyou.model.CartModel
 import com.example.petalsbyyou.model.ProductModel
@@ -55,12 +55,11 @@ class CartAdapter(
         holder.productQuantity.text = cartItem.quantity.toString()
 
         // Load product image
-        Glide.with(context)
-            .load(product?.imageRes)
-            .placeholder(R.drawable.ic_home)
-            .error(R.drawable.ic_home)
-            .centerCrop()
-            .into(holder.productImage)
+        if (product != null && product.imageRes > 0) {
+            holder.productImage.setImageResource(product.imageRes)
+        } else {
+            holder.productImage.setImageResource(R.drawable.ic_home) // Default image
+        }
 
         // Set click listeners
         holder.btnRemove.setOnClickListener {
@@ -69,7 +68,11 @@ class CartAdapter(
 
         holder.btnDecrease.setOnClickListener {
             val newQuantity = cartItem.quantity - 1
-            onQuantityChange(cartItem.cartId, newQuantity)
+            if (newQuantity < 1) {
+                Toast.makeText(context, "Quantity cannot be less than 1", Toast.LENGTH_SHORT).show()
+            } else {
+                onQuantityChange(cartItem.cartId, newQuantity)
+            }
         }
 
         holder.btnIncrease.setOnClickListener {

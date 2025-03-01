@@ -4,18 +4,18 @@ import android.os.Parcel
 import android.os.Parcelable
 
 data class ProductModel(
-    var productId: String = "",
+    var productId: String,
     var productName: String = "",
     var productDesc: String = "",
     var price: Double = 0.0,
-    val imageRes: Int // Change from String (URL) to Int (drawable resource ID)
+    val imageRes: Int
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString() ?: "",
         parcel.readString() ?: "",
         parcel.readString() ?: "",
         parcel.readDouble(),
-        parcel.readInt() // Read integer for imageRes
+        parcel.readInt()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -23,7 +23,7 @@ data class ProductModel(
         parcel.writeString(productName)
         parcel.writeString(productDesc)
         parcel.writeDouble(price)
-        parcel.writeInt(imageRes) // Write integer instead of string
+        parcel.writeInt(imageRes)
     }
 
     override fun describeContents(): Int = 0
