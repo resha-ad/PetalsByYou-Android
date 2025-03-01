@@ -7,8 +7,8 @@ import com.example.petalsbyyou.repository.WishlistRepository
 
 class WishlistViewModel(private val repo: WishlistRepository) : ViewModel() {
 
-    private val _wishlistItems = MutableLiveData<List<WishlistModel>>()
-    val wishlistItems: MutableLiveData<List<WishlistModel>> get() = _wishlistItems
+    private val _wishlistItems = MutableLiveData<List<WishlistModel>?>() // Make it nullable
+    val wishlistItems: MutableLiveData<List<WishlistModel>?> get() = _wishlistItems // Make it nullable
 
     private val _loading = MutableLiveData<Boolean>()
     val loading: MutableLiveData<Boolean> get() = _loading
@@ -22,12 +22,12 @@ class WishlistViewModel(private val repo: WishlistRepository) : ViewModel() {
     }
 
     fun getWishlistItems(userId: String) {
-        _loading.value = true
+        _loading.postValue(true)
         repo.getWishlistItems(userId) { wishlistItems, success, message ->
             if (success) {
-                _wishlistItems.value = wishlistItems
+                _wishlistItems.postValue(wishlistItems) // This can now accept null
             }
-            _loading.value = false
+            _loading.postValue(false)
         }
     }
 }

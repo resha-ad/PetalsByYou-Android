@@ -225,19 +225,6 @@
                         android:layout_marginTop="8dp"
                         android:gravity="center" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnStartShopping"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="24dp"
-                        android:backgroundTint="@color/primary_color"
-                        android:fontFamily="@font/product_sans_medium"
-                        android:paddingStart="24dp"
-                        android:paddingEnd="24dp"
-                        android:text="Start Shopping"
-                        android:textAllCaps="false"
-                        android:textColor="@color/white"
-                        app:cornerRadius="8dp" />
                 </LinearLayout>
             </FrameLayout>
         </androidx.core.widget.NestedScrollView>

@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.firebase.database)
     implementation ("com.github.bumptech.glide:glide:4.16.0")
     implementation ("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    implementation ("androidx.fragment:fragment-ktx:1.5.5")
 
 
 

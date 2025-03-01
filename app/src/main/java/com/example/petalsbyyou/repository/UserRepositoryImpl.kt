@@ -3,8 +3,11 @@ package com.example.petalsbyyou.repository
 import com.example.petalsbyyou.model.UserModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class UserRepositoryImpl : UserRepository {
 
@@ -55,4 +58,50 @@ class UserRepositoryImpl : UserRepository {
     override fun getCurrentUser(): FirebaseUser? {
         return auth.currentUser
     }
+
+    override fun getUserDetails(userId: String, callback: (UserModel?) -> Unit) {
+        ref.child(userId).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val userModel = snapshot.getValue(UserModel::class.java)
+                callback(userModel)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                callback(null)
+            }
+        })
+    }
+
+    override fun updateUserProfile(userModel: UserModel, callback: (Boolean, String) -> Unit) {
+        ref.child(userModel.userId).setValue(userModel).addOnCompleteListener {
+            if (it.isSuccessful) {
+                callback(true, "Profile updated successfully")
+            } else {
+                callback(false, it.exception?.message.toString())
+            }
+        }
+    }
+
+    override fun deleteUserProfile(callback: (Boolean, String) -> Unit) {
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            ref.child(userId).removeValue().addOnCompleteListener {
+                if (it.isSuccessful) {
+                    auth.currentUser?.delete()?.addOnCompleteListener { deleteTask ->
+                        if (deleteTask.isSuccessful) {
+                            callback(true, "Profile deleted successfully")
+                        } else {
+                            callback(false, deleteTask.exception?.message.toString())
+                        }
+                    }
+                } else {
+                    callback(false, it.exception?.message.toString())
+                }
+            }
+        } else {
+            callback(false, "User not logged in")
+        }
+    }
 }
+
+

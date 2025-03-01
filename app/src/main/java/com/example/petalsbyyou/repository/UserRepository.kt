@@ -9,4 +9,7 @@ interface UserRepository {
     fun addUserToDatabase(userId: String, userModel: UserModel, callback: (Boolean, String) -> Unit)
     fun forgetPassword(email: String, callback: (Boolean, String) -> Unit)
     fun getCurrentUser(): FirebaseUser?
+    fun getUserDetails(userId: String, callback: (UserModel?) -> Unit)
+    fun updateUserProfile(userModel: UserModel, callback: (Boolean, String) -> Unit)
+    fun deleteUserProfile(callback: (Boolean, String) -> Unit)
 }

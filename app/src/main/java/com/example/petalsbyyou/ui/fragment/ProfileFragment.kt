@@ -1,60 +1,137 @@
 package com.example.petalsbyyou.ui.fragment
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.petalsbyyou.R
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import com.example.petalsbyyou.databinding.FragmentProfileBinding
+import com.example.petalsbyyou.model.UserModel
+import com.example.petalsbyyou.repository.UserRepositoryImpl
+import com.example.petalsbyyou.utils.LoadingUtils
+import com.example.petalsbyyou.viewmodel.UserViewModel
+import com.google.firebase.auth.FirebaseAuth
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [ProfileFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class ProfileFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private var _binding: FragmentProfileBinding? = null
+    private val binding get() = _binding!!
+    private lateinit var userViewModel: UserViewModel
+    private lateinit var loadingUtils: LoadingUtils
+    private lateinit var currentUser: UserModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_profile, container, false)
+    ): View {
+        _binding = FragmentProfileBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment ProfileFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            ProfileFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Initialize ViewModel
+        val repo = UserRepositoryImpl()
+        userViewModel = UserViewModel(repo)
+        loadingUtils = LoadingUtils(requireContext())
+
+        // Fetch current user details
+        fetchCurrentUserDetails()
+
+        // Set up Save Button
+        binding.profileSaveButton.setOnClickListener {
+            updateUserProfile()
+        }
+
+        // Set up Delete Button
+        binding.profileDeleteButton.setOnClickListener {
+            deleteUserProfile()
+        }
+    }
+
+    private fun fetchCurrentUserDetails() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            loadingUtils.show()
+            userViewModel.getCurrentUserDetails(userId) { userModel ->
+                loadingUtils.dismiss()
+                if (userModel != null) {
+                    currentUser = userModel
+                    populateUserDetails(userModel)
+                } else {
+                    Toast.makeText(requireContext(), "Failed to fetch user details", Toast.LENGTH_SHORT).show()
                 }
             }
+        } else {
+            Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun populateUserDetails(userModel: UserModel) {
+        binding.profileFirstName.setText(userModel.firstName)
+        binding.profileLastName.setText(userModel.lastName)
+        binding.profileEmail.setText(userModel.email)
+        binding.profileAddress.setText(userModel.address)
+        binding.profilePhone.setText(userModel.phoneNumber)
+    }
+
+    private fun updateUserProfile() {
+        val firstName = binding.profileFirstName.text.toString().trim()
+        val lastName = binding.profileLastName.text.toString().trim()
+        val address = binding.profileAddress.text.toString().trim()
+        val phone = binding.profilePhone.text.toString().trim()
+
+        if (validateInputs(firstName, lastName, address, phone)) {
+            loadingUtils.show()
+            val updatedUser = currentUser.copy(
+                firstName = firstName,
+                lastName = lastName,
+                address = address,
+                phoneNumber = phone
+            )
+
+            userViewModel.updateUserProfile(updatedUser) { success, message ->
+                loadingUtils.dismiss()
+                if (success) {
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun deleteUserProfile() {
+        loadingUtils.show()
+        userViewModel.deleteUserProfile { success, message ->
+            loadingUtils.dismiss()
+            if (success) {
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+                // Navigate to login or another screen after deletion
+            } else {
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun validateInputs(firstName: String, lastName: String, address: String, phone: String): Boolean {
+        if (firstName.isEmpty() || lastName.isEmpty() || address.isEmpty() || phone.isEmpty()) {
+            Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        if (phone.length != 10 || !phone.matches("\\d+".toRegex())) {
+            Toast.makeText(requireContext(), "Phone number must be 10 digits", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        return true
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

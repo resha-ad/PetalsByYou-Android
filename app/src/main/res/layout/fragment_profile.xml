@@ -1,14 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:padding="16dp">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Profile Fragment"
-        android:textSize="24sp" />
+        android:orientation="vertical"
+        android:padding="16dp">
 
-</LinearLayout>
+        <!-- First Name -->
+        <EditText
+            android:id="@+id/profileFirstName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="First Name"
+            android:inputType="textCapWords"
+            android:maxLines="1" />
+
+        <!-- Last Name -->
+        <EditText
+            android:id="@+id/profileLastName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Last Name"
+            android:inputType="textCapWords"
+            android:maxLines="1" />
+
+        <!-- Email -->
+        <EditText
+            android:id="@+id/profileEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Email"
+            android:inputType="textEmailAddress"
+            android:maxLines="1"
+            android:focusable="false"
+            android:clickable="false" />
+
+        <!-- Address -->
+        <EditText
+            android:id="@+id/profileAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Address"
+            android:inputType="textPostalAddress"
+            android:maxLines="3" />
+
+        <!-- Phone Number -->
+        <EditText
+            android:id="@+id/profilePhone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Phone Number"
+            android:inputType="phone"
+            android:maxLines="1" />
+
+        <!-- Save Button -->
+        <Button
+            android:id="@+id/profileSaveButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save Changes"
+            android:layout_marginTop="16dp" />
+
+        <!-- Delete Profile Button -->
+        <Button
+            android:id="@+id/profileDeleteButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Delete Profile"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@android:color/holo_red_dark" />
+
+    </LinearLayout>
+</ScrollView>

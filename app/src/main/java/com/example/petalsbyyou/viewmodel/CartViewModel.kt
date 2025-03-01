@@ -7,8 +7,8 @@ import com.example.petalsbyyou.repository.CartRepository
 
 class CartViewModel(private val repo: CartRepository) : ViewModel() {
 
-    private val _cartItems = MutableLiveData<List<CartModel>>()
-    val cartItems: MutableLiveData<List<CartModel>> get() = _cartItems
+    private val _cartItems = MutableLiveData<List<CartModel>?>() // Make it nullable
+    val cartItems: MutableLiveData<List<CartModel>?> get() = _cartItems // Make it nullable
 
     private val _loading = MutableLiveData<Boolean>()
     val loading: MutableLiveData<Boolean> get() = _loading
@@ -29,7 +29,7 @@ class CartViewModel(private val repo: CartRepository) : ViewModel() {
         _loading.value = true
         repo.getCartItems(userId) { cartItems, success, message ->
             if (success) {
-                _cartItems.value = cartItems
+                _cartItems.value = cartItems // This can now accept null
             }
             _loading.value = false
         }

@@ -1,6 +1,7 @@
 package com.example.petalsbyyou.ui.activity
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -12,6 +13,7 @@ import com.example.petalsbyyou.ui.fragment.CartFragment
 import com.example.petalsbyyou.ui.fragment.HomeFragment
 import com.example.petalsbyyou.ui.fragment.ProfileFragment
 import com.example.petalsbyyou.ui.fragment.WishlistFragment
+import com.google.firebase.auth.FirebaseAuth
 
 class NavigationActivity : AppCompatActivity() {
 
@@ -31,14 +33,27 @@ class NavigationActivity : AppCompatActivity() {
 
         // Set up bottom navigation
         binding.bottomNavigation.setOnItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.menuHome -> replaceFragment(HomeFragment())
-                R.id.menuWishlist -> replaceFragment(WishlistFragment())
-                R.id.menuCart -> replaceFragment(CartFragment())
-                R.id.menuProfile -> replaceFragment(ProfileFragment())
-                else -> return@setOnItemSelectedListener false
+            try {
+                when (menuItem.itemId) {
+                    R.id.menuHome -> replaceFragment(HomeFragment())
+                    R.id.menuWishlist -> replaceFragment(WishlistFragment())
+                    R.id.menuCart -> replaceFragment(CartFragment())
+                    R.id.menuProfile -> {
+                        // Check if the user is logged in before navigating to the ProfileFragment
+                        if (FirebaseAuth.getInstance().currentUser != null) {
+                            replaceFragment(ProfileFragment())
+                        } else {
+                            Toast.makeText(this, "Please log in to view your profile", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    else -> return@setOnItemSelectedListener false
+                }
+                true
+            } catch (e: Exception) {
+                // Show a toast message if an error occurs
+                Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                false
             }
-            true
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -49,12 +64,17 @@ class NavigationActivity : AppCompatActivity() {
     }
 
     private fun replaceFragment(fragment: Fragment) {
-        supportFragmentManager.beginTransaction()
-            .setCustomAnimations(
-                R.anim.fade_in,
-                R.anim.fade_out
-            )
-            .replace(R.id.frameLayout, fragment)
-            .commit()
+        try {
+            supportFragmentManager.beginTransaction()
+                .setCustomAnimations(
+                    R.anim.fade_in,
+                    R.anim.fade_out
+                )
+                .replace(R.id.frameLayout, fragment)
+                .commit()
+        } catch (e: Exception) {
+            // Show a toast message if fragment transaction fails
+            Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
     }
 }

@@ -22,4 +22,5 @@ class ProductRepositoryImpl : ProductRepository {
         val product = sampleProducts[productId]
         callback(product, product != null)
     }
+
 }

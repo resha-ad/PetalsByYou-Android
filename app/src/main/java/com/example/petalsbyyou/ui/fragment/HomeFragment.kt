@@ -7,13 +7,14 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
+import com.example.petalsbyyou.R
 import com.example.petalsbyyou.adapter.ProductAdapter
 import com.example.petalsbyyou.databinding.FragmentHomeBinding
 import com.example.petalsbyyou.model.ProductModel
-import com.example.petalsbyyou.R
 import com.example.petalsbyyou.model.CartModel
+import com.example.petalsbyyou.model.WishlistModel
 import com.example.petalsbyyou.repository.CartRepositoryImpl
-import com.example.petalsbyyou.repository.ProductRepositoryImpl
+import com.example.petalsbyyou.repository.WishlistRepositoryImpl
 import com.example.petalsbyyou.repository.UserRepositoryImpl
 
 class HomeFragment : Fragment(), ProductAdapter.ProductClickListener {
@@ -21,10 +22,10 @@ class HomeFragment : Fragment(), ProductAdapter.ProductClickListener {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private lateinit var productAdapter: ProductAdapter
-    private val cartRepository = CartRepositoryImpl() // Instance of CartRepositoryImpl
-    private val userRepository = UserRepositoryImpl() // Instance of UserRepositoryImpl
+    private val cartRepository = CartRepositoryImpl() // Directly use CartRepositoryImpl
+    private val wishlistRepository = WishlistRepositoryImpl() // Directly use WishlistRepositoryImpl
+    private val userRepository = UserRepositoryImpl()
 
-    // Current user ID (fetched dynamically)
     private var userId: String? = null
 
     override fun onCreateView(
@@ -80,7 +81,11 @@ class HomeFragment : Fragment(), ProductAdapter.ProductClickListener {
         productAdapter.updateProducts(products)
 
         // Show/hide empty state
-        if (products.isEmpty()) {
+        toggleEmptyState(products.isEmpty())
+    }
+
+    private fun toggleEmptyState(isEmpty: Boolean) {
+        if (isEmpty) {
             binding.emptyStateLayout.visibility = View.VISIBLE
             binding.recyclerViewProducts.visibility = View.GONE
         } else {
@@ -103,6 +108,7 @@ class HomeFragment : Fragment(), ProductAdapter.ProductClickListener {
             price = product.price
         )
 
+        // Use CartRepositoryImpl directly
         cartRepository.addToCart(cartModel) { success, message ->
             if (success) {
                 Toast.makeText(requireContext(), "${product.productName} added to cart", Toast.LENGTH_SHORT).show()
@@ -113,19 +119,30 @@ class HomeFragment : Fragment(), ProductAdapter.ProductClickListener {
     }
 
     override fun onWishlistClicked(product: ProductModel, position: Int) {
-        Toast.makeText(
-            requireContext(),
-            "${product.productName} added to wishlist",
-            Toast.LENGTH_SHORT
-        ).show()
+        // Ensure the user is logged in
+        if (userId == null) {
+            Toast.makeText(requireContext(), "Please log in to add items to the wishlist", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Create a WishlistModel with the productId and userId
+        val wishlistModel = WishlistModel(
+            userId = userId!!,
+            productId = product.productId
+        )
+
+        // Use WishlistRepositoryImpl directly
+        wishlistRepository.addToWishlist(wishlistModel) { success, message ->
+            if (success) {
+                Toast.makeText(requireContext(), "${product.productName} added to wishlist", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(requireContext(), "Failed to add to wishlist: $message", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     override fun onProductClicked(product: ProductModel, position: Int) {
-        Toast.makeText(
-            requireContext(),
-            "Viewing ${product.productName}",
-            Toast.LENGTH_SHORT
-        ).show()
+        Toast.makeText(requireContext(), "Viewing ${product.productName}", Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroyView() {

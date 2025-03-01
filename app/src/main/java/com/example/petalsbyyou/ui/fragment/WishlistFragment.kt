@@ -1,12 +1,12 @@
 package com.example.petalsbyyou.ui.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.petalsbyyou.adapter.WishlistAdapter
 import com.example.petalsbyyou.databinding.FragmentWishlistBinding
@@ -14,14 +14,16 @@ import com.example.petalsbyyou.model.ProductModel
 import com.example.petalsbyyou.model.WishlistModel
 import com.example.petalsbyyou.repository.ProductRepositoryImpl
 import com.example.petalsbyyou.repository.UserRepositoryImpl
-import com.example.petalsbyyou.viewmodel.WishlistViewModel
+import com.example.petalsbyyou.repository.WishlistRepositoryImpl
+import com.example.petalsbyyou.ui.activity.LoginActivity
+import com.example.petalsbyyou.ui.activity.RegistrationActivity
 
 class WishlistFragment : Fragment() {
 
     private var _binding: FragmentWishlistBinding? = null
     private val binding get() = _binding!!
     private lateinit var wishlistAdapter: WishlistAdapter
-    private lateinit var wishlistViewModel: WishlistViewModel
+    private val wishlistRepository = WishlistRepositoryImpl() // Use WishlistRepository directly
     private val productRepository = ProductRepositoryImpl()
     private val userRepository = UserRepositoryImpl()
     private val wishlistItems = mutableListOf<WishlistModel>()
@@ -41,9 +43,6 @@ class WishlistFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Initialize ViewModel
-        wishlistViewModel = ViewModelProvider(this).get(WishlistViewModel::class.java)
-
         // Check if the user is logged in
         if (userId == null) {
             Toast.makeText(requireContext(), "Please log in to view your wishlist", Toast.LENGTH_SHORT).show()
@@ -58,6 +57,7 @@ class WishlistFragment : Fragment() {
         binding.swipeRefreshLayout.setOnRefreshListener {
             loadWishlistItems()
         }
+
     }
 
     private fun setupRecyclerView() {
@@ -88,17 +88,20 @@ class WishlistFragment : Fragment() {
             return
         }
 
-        wishlistViewModel.getWishlistItems(userId!!)
-        wishlistViewModel.wishlistItems.observe(viewLifecycleOwner, { items ->
-            if (items != null) {
+        wishlistRepository.getWishlistItems(userId!!) { items, success, message ->
+            if (_binding == null) return@getWishlistItems
+
+            binding.swipeRefreshLayout.isRefreshing = false
+
+            if (success && items != null) {
                 wishlistItems.clear()
                 wishlistItems.addAll(items)
-                loadProductsForWishlistItems()
+                loadProductsForWishlistItems() // Fetch product details for each wishlist item
             } else {
-                Toast.makeText(context, "Failed to load wishlist items", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Failed to load wishlist items: $message", Toast.LENGTH_SHORT).show()
                 toggleEmptyState()
             }
-        })
+        }
     }
 
     private fun loadProductsForWishlistItems() {
@@ -128,7 +131,7 @@ class WishlistFragment : Fragment() {
     }
 
     private fun removeFromWishlist(wishlistId: String) {
-        wishlistViewModel.removeFromWishlist(wishlistId) { success, message ->
+        wishlistRepository.removeFromWishlist(wishlistId) { success, message ->
             if (_binding == null) return@removeFromWishlist
 
             if (success) {
