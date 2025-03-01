@@ -1,60 +1,169 @@
 package com.example.petalsbyyou.ui.fragment
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.petalsbyyou.R
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.petalsbyyou.adapter.WishlistAdapter
+import com.example.petalsbyyou.databinding.FragmentWishlistBinding
+import com.example.petalsbyyou.model.ProductModel
+import com.example.petalsbyyou.model.WishlistModel
+import com.example.petalsbyyou.repository.ProductRepositoryImpl
+import com.example.petalsbyyou.repository.UserRepositoryImpl
+import com.example.petalsbyyou.viewmodel.WishlistViewModel
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [WishlistFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class WishlistFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private var _binding: FragmentWishlistBinding? = null
+    private val binding get() = _binding!!
+    private lateinit var wishlistAdapter: WishlistAdapter
+    private lateinit var wishlistViewModel: WishlistViewModel
+    private val productRepository = ProductRepositoryImpl()
+    private val userRepository = UserRepositoryImpl()
+    private val wishlistItems = mutableListOf<WishlistModel>()
+    private val productMap = mutableMapOf<String, ProductModel>()
+
+    private val userId: String?
+        get() = userRepository.getCurrentUser()?.uid
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_wishlist, container, false)
+    ): View {
+        _binding = FragmentWishlistBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment WishlistFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            WishlistFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Initialize ViewModel
+        wishlistViewModel = ViewModelProvider(this).get(WishlistViewModel::class.java)
+
+        // Check if the user is logged in
+        if (userId == null) {
+            Toast.makeText(requireContext(), "Please log in to view your wishlist", Toast.LENGTH_SHORT).show()
+            binding.emptyStateLayout.visibility = View.VISIBLE
+            binding.wishlistContentLayout.visibility = View.GONE
+            return
+        }
+
+        setupRecyclerView()
+        loadWishlistItems()
+
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            loadWishlistItems()
+        }
+    }
+
+    private fun setupRecyclerView() {
+        wishlistAdapter = WishlistAdapter(
+            requireContext(),
+            wishlistItems,
+            productMap,
+            onRemoveClick = { wishlistId ->
+                removeFromWishlist(wishlistId)
+            },
+            onProductClick = { productId ->
+                viewProductDetails(productId)
+            }
+        )
+
+        binding.recyclerViewWishlist.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = wishlistAdapter
+        }
+    }
+
+    private fun loadWishlistItems() {
+        binding.swipeRefreshLayout.isRefreshing = true
+
+        if (userId == null) {
+            Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
+            binding.swipeRefreshLayout.isRefreshing = false
+            return
+        }
+
+        wishlistViewModel.getWishlistItems(userId!!)
+        wishlistViewModel.wishlistItems.observe(viewLifecycleOwner, { items ->
+            if (items != null) {
+                wishlistItems.clear()
+                wishlistItems.addAll(items)
+                loadProductsForWishlistItems()
+            } else {
+                Toast.makeText(context, "Failed to load wishlist items", Toast.LENGTH_SHORT).show()
+                toggleEmptyState()
+            }
+        })
+    }
+
+    private fun loadProductsForWishlistItems() {
+        if (wishlistItems.isEmpty()) {
+            toggleEmptyState()
+            return
+        }
+
+        var loadedCount = 0
+        productMap.clear()
+
+        for (wishlistItem in wishlistItems) {
+            productRepository.getProductById(wishlistItem.productId) { product, success ->
+                if (_binding == null) return@getProductById
+
+                if (success && product != null) {
+                    productMap[product.productId] = product
+                }
+
+                loadedCount++
+                if (loadedCount >= wishlistItems.size) {
+                    wishlistAdapter.notifyDataSetChanged()
+                    toggleEmptyState()
                 }
             }
+        }
+    }
+
+    private fun removeFromWishlist(wishlistId: String) {
+        wishlistViewModel.removeFromWishlist(wishlistId) { success, message ->
+            if (_binding == null) return@removeFromWishlist
+
+            if (success) {
+                val position = wishlistItems.indexOfFirst { it.wishlistId == wishlistId }
+                if (position != -1) {
+                    wishlistItems.removeAt(position)
+                    wishlistAdapter.notifyItemRemoved(position)
+                    toggleEmptyState()
+                }
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun viewProductDetails(productId: String) {
+        // Navigate to product details screen (implement this later)
+        Toast.makeText(context, "Viewing product: $productId", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun toggleEmptyState() {
+        if (_binding == null) return
+
+        if (wishlistItems.isEmpty()) {
+            binding.emptyStateLayout.visibility = View.VISIBLE
+            binding.wishlistContentLayout.visibility = View.GONE
+        } else {
+            binding.emptyStateLayout.visibility = View.GONE
+            binding.wishlistContentLayout.visibility = View.VISIBLE
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
